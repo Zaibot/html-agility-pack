@@ -3,7 +3,7 @@
 // Forum & Issues: https://github.com/zzzprojects/html-agility-pack
 // License: https://github.com/zzzprojects/html-agility-pack/blob/master/LICENSE
 // More projects: http://www.zzzprojects.com/
-// Copyright © ZZZ Projects Inc. 2014 - 2017. All rights reserved.
+// Copyright ï¿½ ZZZ Projects Inc. 2014 - 2017. All rights reserved.
 
 using System;
 using System.Collections;
@@ -38,7 +38,7 @@ namespace HtmlAgilityPack
 		internal int _innerstartindex;
 		internal int _line;
 		internal int _lineposition;
-		private string _name;
+		private TagName _name;
 		internal int _namelength;
 		internal int _namestartindex;
 		internal HtmlNode _nextnode;
@@ -46,7 +46,6 @@ namespace HtmlAgilityPack
 		internal string _outerhtml;
 		internal int _outerlength;
 		internal int _outerstartindex;
-		private string _optimizedName;
 		internal HtmlDocument _ownerdocument;
 		internal HtmlNode _parentnode;
 		internal HtmlNode _prevnode;
@@ -467,23 +466,15 @@ namespace HtmlAgilityPack
 		/// <summary>
 		/// Gets or sets this node's name.
 		/// </summary>
-		public string Name
+		public TagName Name
 		{
 			get
 			{
-				if (_optimizedName == null)
-				{
-					if (_name == null)
-						Name = _ownerdocument.Text.Substring(_namestartindex, _namelength);
-
-					if (_name == null)
-						_optimizedName = string.Empty;
-					else
-						_optimizedName = _name.ToLower();
-				}
-				return _optimizedName;
+				if (_name == null)
+					_name = _ownerdocument.Text.Substring(_namestartindex, _namelength);
+				return _name;
 			}
-			set { _name = value; _optimizedName = null; }
+			set { _name = value; }
 		}
 
 		/// <summary>
@@ -509,7 +500,7 @@ namespace HtmlAgilityPack
 		/// </summary>
 		public string OriginalName
 		{
-			get { return _name; }
+			get { return _name.Original; }
 		}
 
 		/// <summary>
@@ -1057,9 +1048,8 @@ namespace HtmlAgilityPack
 		/// <returns></returns>
 		public IEnumerable<HtmlNode> Descendants(string name)
 		{
-			name = name.ToLowerInvariant();
 			foreach (HtmlNode node in Descendants())
-				if (node.Name.Equals(name))
+                if (node.Name == name)
 					yield return node;
 		}
 
@@ -1617,10 +1607,11 @@ namespace HtmlAgilityPack
 					break;
 
 				case HtmlNodeType.Element:
-					string name = _ownerdocument.OptionOutputUpperCase ? Name.ToUpper() : Name;
-
-					if (_ownerdocument.OptionOutputOriginalCase)
-						name = OriginalName;
+					string name = _ownerdocument.OptionOutputOriginalCase
+						? Name.Original
+						: _ownerdocument.OptionOutputUpperCase
+							? Name.ToUpper()
+							: Name.ToString();
 
 					if (_ownerdocument.OptionOutputAsXml)
 					{
@@ -1682,7 +1673,7 @@ namespace HtmlAgilityPack
 					            outText.Write(" />");
 					        else
 					        {
-					            if (Name.Length > 0 && Name[0] == '?')
+					            if (Name.Length > 0 && Name.Original[0] == '?')
 					                outText.Write("?");
 
 					            outText.Write(">");
@@ -1738,10 +1729,11 @@ namespace HtmlAgilityPack
 					break;
 
 				case HtmlNodeType.Element:
-					string name = _ownerdocument.OptionOutputUpperCase ? Name.ToUpper() : Name;
-
-					if (_ownerdocument.OptionOutputOriginalCase)
-						name = OriginalName;
+					string name = _ownerdocument.OptionOutputOriginalCase
+						? Name.Original
+						: _ownerdocument.OptionOutputUpperCase
+							? Name.ToUpper()
+							: Name.ToString();
 
 					writer.WriteStartElement(name);
 					WriteAttributes(writer, this);
@@ -1885,25 +1877,28 @@ namespace HtmlAgilityPack
 		        return;
 		    }
 
-			string name;
 			string quote = att.QuoteType == AttributeValueQuote.DoubleQuote ? "\"" : "'";
 			if (_ownerdocument.OptionOutputAsXml)
 			{
-				name = _ownerdocument.OptionOutputUpperCase ? att.XmlName.ToUpper() : att.XmlName;
-				if (_ownerdocument.OptionOutputOriginalCase)
-					name = att.OriginalName;
+				string name = _ownerdocument.OptionOutputOriginalCase
+					? att.OriginalName
+					: _ownerdocument.OptionOutputUpperCase
+						? att.XmlName.ToUpper()
+						: att.XmlName;
 
 				outText.Write(" " + name + "=" + quote + HtmlDocument.HtmlEncodeWithCompatibility(att.XmlValue, _ownerdocument.BackwardCompatibility) + quote);
 			}
 			else
 			{
-				name = _ownerdocument.OptionOutputUpperCase ? att.Name.ToUpper() : att.Name;
-				if (_ownerdocument.OptionOutputOriginalCase)
-					name = att.OriginalName;
+				string name = _ownerdocument.OptionOutputOriginalCase
+					? att.OriginalName
+					: _ownerdocument.OptionOutputUpperCase
+						? att.XmlName.ToUpper()
+						: att.XmlName;
 				if (att.Name.Length >= 4)
 				{
-					if ((att.Name[0] == '<') && (att.Name[1] == '%') &&
-						(att.Name[att.Name.Length - 1] == '>') && (att.Name[att.Name.Length - 2] == '%'))
+					if ((att.Name.Original[0] == '<') && (att.Name.Original[1] == '%') &&
+						(att.Name.Original[att.Name.Length - 1] == '>') && (att.Name.Original[att.Name.Length - 2] == '%'))
 					{
 						outText.Write(" " + name);
 						return;

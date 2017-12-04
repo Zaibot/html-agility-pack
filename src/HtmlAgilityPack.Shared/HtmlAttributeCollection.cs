@@ -3,7 +3,7 @@
 // Forum & Issues: https://github.com/zzzprojects/html-agility-pack
 // License: https://github.com/zzzprojects/html-agility-pack/blob/master/LICENSE
 // More projects: http://www.zzzprojects.com/
-// Copyright © ZZZ Projects Inc. 2014 - 2017. All rights reserved.
+// Copyright ï¿½ ZZZ Projects Inc. 2014 - 2017. All rights reserved.
 
 using System;
 using System.Collections;
@@ -252,11 +252,9 @@ namespace HtmlAgilityPack
         /// <returns></returns>
         public bool Contains(string name)
         {
-            string lname = name.ToLower();
-
             for (int i = 0; i < items.Count; i++)
             {
-                if (items[i].Name.Equals(lname))
+                if (items[i].Name == name)
                     return true;
             }
             return false;
@@ -301,12 +299,10 @@ namespace HtmlAgilityPack
             {
                 throw new ArgumentNullException("name");
             }
-
-            string lname = name.ToLower();
+            
             for (int i = 0; i < items.Count; i++)
             {
-                HtmlAttribute att = items[i];
-                if (att.Name == lname)
+                if (items[i].Name == name)
                 {
                     RemoveAt(i);
                 }
@@ -335,10 +331,9 @@ namespace HtmlAgilityPack
         /// <returns></returns>
         public IEnumerable<HtmlAttribute> AttributesWithName(string attributeName)
         {
-            attributeName = attributeName.ToLower();
             for (int i = 0; i < items.Count; i++)
             {
-                if (items[i].Name.Equals(attributeName))
+                if (items[i].Name == attributeName)
                     yield return items[i];
             }
         }
@@ -384,10 +379,9 @@ namespace HtmlAgilityPack
             {
                 throw new ArgumentNullException("name");
             }
-            string lname = name.ToLower();
             for (int i = 0; i < items.Count; i++)
             {
-                if ((items[i]).Name == lname)
+                if (items[i].Name == name)
                     return i;
             }
             return -1;

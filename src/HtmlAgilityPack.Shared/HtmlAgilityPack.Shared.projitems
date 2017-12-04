@@ -52,6 +52,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)MixedCodeDocumentTextFragment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NameValuePair.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NameValuePairList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TagName.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Trace.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Trace.FullFramework.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />

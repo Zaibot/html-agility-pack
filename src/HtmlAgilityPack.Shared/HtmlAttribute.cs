@@ -3,7 +3,7 @@
 // Forum & Issues: https://github.com/zzzprojects/html-agility-pack
 // License: https://github.com/zzzprojects/html-agility-pack/blob/master/LICENSE
 // More projects: http://www.zzzprojects.com/
-// Copyright © ZZZ Projects Inc. 2014 - 2017. All rights reserved.
+// Copyright ï¿½ ZZZ Projects Inc. 2014 - 2017. All rights reserved.
 
 #region
 
@@ -25,7 +25,7 @@ namespace HtmlAgilityPack
 
         private int _line;
         internal int _lineposition;
-        internal string _name;
+        internal TagName _name;
         internal int _namelength;
         internal int _namestartindex;
         internal HtmlDocument _ownerdocument; // attribute can exists without a node
@@ -69,16 +69,14 @@ namespace HtmlAgilityPack
         /// <summary>
         /// Gets the qualified name of the attribute.
         /// </summary>
-        public string Name
+        public TagName Name
         {
-            get
+			get
             {
                 if (_name == null)
-                {
                     _name = _ownerdocument.Text.Substring(_namestartindex, _namelength);
-                }
-                return _name.ToLower();
-            }
+                return _name;
+			}
             set
             {
                 if (value == null)
@@ -93,13 +91,10 @@ namespace HtmlAgilityPack
             }
         }
 
-        /// <summary>
-        /// Name of attribute with original case
-        /// </summary>
-        public string OriginalName
-        {
-            get { return _name; }
-        }
+		public string OriginalName
+		{
+			get { return _name.Original; }
+		}
 
         /// <summary>
         /// Gets the HTML document to which this attribute belongs.

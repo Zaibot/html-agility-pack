@@ -3,7 +3,7 @@
 // Forum & Issues: https://github.com/zzzprojects/html-agility-pack
 // License: https://github.com/zzzprojects/html-agility-pack/blob/master/LICENSE
 // More projects: http://www.zzzprojects.com/
-// Copyright © ZZZ Projects Inc. 2014 - 2017. All rights reserved.
+// Copyright ï¿½ ZZZ Projects Inc. 2014 - 2017. All rights reserved.
 
 using System;
 using System.Collections.Generic;
@@ -342,10 +342,14 @@ namespace HtmlAgilityPack
 
             // replace & by &amp; but only once!
 
-            Regex rx = backwardCompatibility ?
-                new Regex("&(?!(amp;)|(lt;)|(gt;)|(quot;))", RegexOptions.IgnoreCase) :
-                new Regex("&(?!(amp;)|(lt;)|(gt;)|(quot;)|(nbsp;)|(reg;))", RegexOptions.IgnoreCase);
-            return rx.Replace(html, "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+            if (backwardCompatibility)
+            {
+                return Regex.Replace(html, "&(?!(amp;)|(lt;)|(gt;)|(quot;))", "&amp;", RegexOptions.IgnoreCase).Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+            }
+            else
+            {
+                return Regex.Replace(html, "&(?!(amp;)|(lt;)|(gt;)|(quot;)|(nbsp;)|(reg;))", "&amp;", RegexOptions.IgnoreCase).Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+            }          
         }
 
         /// <summary>
