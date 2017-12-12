@@ -41,7 +41,7 @@ namespace HtmlAgilityPack
         private HtmlNode _documentnode;
         private bool _fullcomment;
         private int _index;
-        internal Dictionary<string, HtmlNode> Lastnodes = new Dictionary<string, HtmlNode>();
+        internal Dictionary<TagName, HtmlNode> Lastnodes = new Dictionary<TagName, HtmlNode>();
         private HtmlNode _lastparentnode;
         private int _line;
         private int _lineposition, _maxlineposition;
@@ -344,11 +344,11 @@ namespace HtmlAgilityPack
 
             if (backwardCompatibility)
             {
-                return Regex.Replace(html, "&(?!(amp;)|(lt;)|(gt;)|(quot;))", "&amp;", RegexOptions.IgnoreCase).Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+                return Regex.Replace(html, "&(?!(amp;)|(lt;)|(gt;)|(quot;))", "&amp;", RegexOptions.IgnoreCase | RegexOptions.Compiled).Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
             }
             else
             {
-                return Regex.Replace(html, "&(?!(amp;)|(lt;)|(gt;)|(quot;)|(nbsp;)|(reg;))", "&amp;", RegexOptions.IgnoreCase).Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+                return Regex.Replace(html, "&(?!(amp;)|(lt;)|(gt;)|(quot;)|(nbsp;)|(reg;))", "&amp;", RegexOptions.IgnoreCase | RegexOptions.Compiled).Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
             }          
         }
 
@@ -377,7 +377,7 @@ namespace HtmlAgilityPack
                 throw new ArgumentNullException("name");
 
             HtmlAttribute att = CreateAttribute();
-            att.Name = name;
+            att.TagName = name;
             return att;
         }
 
@@ -435,7 +435,7 @@ namespace HtmlAgilityPack
                 throw new ArgumentNullException("name");
             }
             HtmlNode node = CreateNode(HtmlNodeType.Element);
-            node.Name = name;
+            node.TagName = name;
             return node;
         }
 
@@ -706,7 +706,7 @@ namespace HtmlAgilityPack
                     HtmlParseErrorCode.TagNotClosed,
                     node._line, node._lineposition,
                     node._streamposition, html,
-                    "End tag </" + node.Name + "> was not found");
+                    "End tag </" + node.TagName + "> was not found");
             }
 
             // we don't need this anymore
@@ -833,7 +833,7 @@ namespace HtmlAgilityPack
                 return null;
 
             foreach (HtmlNode node in _documentnode._childnodes)
-                if (node.Name == "?xml") // it's ok, names are case sensitive
+                if (node.TagName == "?xml") // it's ok, names are case sensitive
                     return node;
 
             return null;
@@ -883,12 +883,12 @@ namespace HtmlAgilityPack
                 return;
 
             bool error = false;
-            HtmlNode prev = Utilities.GetDictionaryValueOrNull(Lastnodes, _currentnode.Name);
+            HtmlNode prev = Utilities.GetDictionaryValueOrNull(Lastnodes, _currentnode.TagName);
 
             // find last node of this kind
             if (prev == null)
             {
-                if (HtmlNode.IsClosedElement(_currentnode.Name))
+                if (HtmlNode.IsClosedElement(_currentnode.TagName))
                 {
                     // </br> will be seen as <br>
                     _currentnode.CloseNode(_currentnode);
@@ -900,7 +900,7 @@ namespace HtmlAgilityPack
                         Stack<HtmlNode> futureChild = new Stack<HtmlNode>();
                         for (HtmlNode node = _lastparentnode.LastChild; node != null; node = node.PreviousSibling)
                         {
-                            if ((node.Name == _currentnode.Name) && (!node.HasChildNodes))
+                            if ((node.TagName == _currentnode.TagName) && (!node.HasChildNodes))
                             {
                                 foundNode = node;
                                 break;
@@ -927,7 +927,7 @@ namespace HtmlAgilityPack
                     // node has no parent
                     // node is not a closed node
 
-                    if (HtmlNode.CanOverlapElement(_currentnode.Name))
+                    if (HtmlNode.CanOverlapElement(_currentnode.TagName))
                     {
                         // this is a hack: add it as a text node
                         HtmlNode closenode = CreateNode(HtmlNodeType.Text, _currentnode._outerstartindex);
@@ -940,13 +940,13 @@ namespace HtmlAgilityPack
                     }
                     else
                     {
-                        if (HtmlNode.IsEmptyElement(_currentnode.Name))
+                        if (HtmlNode.IsEmptyElement(_currentnode.TagName))
                         {
                             AddError(
                                 HtmlParseErrorCode.EndTagNotRequired,
                                 _currentnode._line, _currentnode._lineposition,
                                 _currentnode._streamposition, _currentnode.OuterHtml,
-                                "End tag </" + _currentnode.Name + "> is not required");
+                                "End tag </" + _currentnode.TagName + "> is not required");
                         }
                         else
                         {
@@ -955,7 +955,7 @@ namespace HtmlAgilityPack
                                 HtmlParseErrorCode.TagNotOpened,
                                 _currentnode._line, _currentnode._lineposition,
                                 _currentnode._streamposition, _currentnode.OuterHtml,
-                                "Start tag <" + _currentnode.Name + "> was not found");
+                                "Start tag <" + _currentnode.TagName + "> was not found");
                             error = true;
                         }
                     }
@@ -967,20 +967,20 @@ namespace HtmlAgilityPack
 
                 if (OptionFixNestedTags)
                 {
-                    if (FindResetterNodes(prev, GetResetters(_currentnode.Name)))
+                    if (FindResetterNodes(prev, GetResetters(_currentnode.TagName)))
                     {
                         AddError(
                             HtmlParseErrorCode.EndTagInvalidHere,
                             _currentnode._line, _currentnode._lineposition,
                             _currentnode._streamposition, _currentnode.OuterHtml,
-                            "End tag </" + _currentnode.Name + "> invalid here");
+                            "End tag </" + _currentnode.TagName + "> invalid here");
                         error = true;
                     }
                 }
 
                 if (!error)
                 {
-                    Lastnodes[_currentnode.Name] = prev._prevwithsamename;
+                    Lastnodes[_currentnode.TagName] = prev._prevwithsamename;
                     prev.CloseNode(_currentnode);
                 }
             }
@@ -990,7 +990,7 @@ namespace HtmlAgilityPack
             if (!error)
             {
                 if ((_lastparentnode != null) &&
-                    ((!HtmlNode.IsClosedElement(_currentnode.Name)) ||
+                    ((!HtmlNode.IsClosedElement(_currentnode.TagName)) ||
                      (_currentnode._starttag)))
                 {
                     UpdateLastParentNode();
@@ -1053,7 +1053,7 @@ namespace HtmlAgilityPack
             if (resetters == null)
                 return;
 
-            HtmlNode prev = Utilities.GetDictionaryValueOrNull(Lastnodes, _currentnode.Name);
+            HtmlNode prev = Utilities.GetDictionaryValueOrNull(Lastnodes, _currentnode.TagName);
             // if we find a previous unclosed same name node, without a resetter node between, we must close it
             if (prev == null || (Lastnodes[name].Closed)) return;
             // try to find a resetter node, if found, we do nothing
@@ -1203,7 +1203,7 @@ namespace HtmlAgilityPack
                 _crc32 = new Crc32();
             }
 
-            Lastnodes = new Dictionary<string, HtmlNode>();
+            Lastnodes = new Dictionary<TagName, HtmlNode>();
             _c = 0;
             _fullcomment = false;
             _parseerrors = new List<HtmlParseError>();
@@ -1602,9 +1602,9 @@ namespace HtmlAgilityPack
                         if ((_currentnode._namelength + 3) <= (Text.Length - (_index - 1)))
                         {
                             if (string.Compare(Text.Substring(_index - 1, _currentnode._namelength + 2),
-                                    "</" + _currentnode.Name, StringComparison.OrdinalIgnoreCase) == 0)
+                                    "</" + _currentnode.TagName, StringComparison.OrdinalIgnoreCase) == 0)
                             {
-                                int c = Text[_index - 1 + 2 + _currentnode.Name.Length];
+                                int c = Text[_index - 1 + 2 + _currentnode.TagName.Length];
                                 if ((c == '>') || (IsWhiteSpace(c)))
                                 {
                                     // add the script as a text node
@@ -1672,7 +1672,7 @@ namespace HtmlAgilityPack
 
             bool isImplicitEnd = false;
 
-            var parent = _lastparentnode.Name;
+            var parent = _lastparentnode.TagName;
             var nodeName = Text.Substring(_currentnode._namestartindex, _index - _currentnode._namestartindex - 1);
 
             switch (parent)
@@ -1704,7 +1704,7 @@ namespace HtmlAgilityPack
 
             bool isExplicitEnd = false;
 
-            var parent = _lastparentnode.Name;
+            var parent = _lastparentnode.TagName;
             var nodeName = Text.Substring(_currentnode._namestartindex, _index - _currentnode._namestartindex - 1);
 
             switch (parent)
@@ -1739,7 +1739,7 @@ namespace HtmlAgilityPack
 
         //    bool isIncompatible = false;
 
-        //    var parent = _lastparentnode.Name;
+        //    var parent = _lastparentnode.TagName;
         //    var nodeName = Text.Substring(_currentnode._namestartindex, _index - _currentnode._namestartindex - 1);
 
         //    switch (parent)
@@ -1818,10 +1818,10 @@ namespace HtmlAgilityPack
                     ReadDocumentEncoding(_currentnode);
 
                     // remember last node of this kind
-                    HtmlNode prev = Utilities.GetDictionaryValueOrNull(Lastnodes, _currentnode.Name);
+                    HtmlNode prev = Utilities.GetDictionaryValueOrNull(Lastnodes, _currentnode.TagName);
 
                     _currentnode._prevwithsamename = prev;
-                    Lastnodes[_currentnode.Name] = _currentnode;
+                    Lastnodes[_currentnode.TagName] = _currentnode;
 
                     // change parent?
                     if ((_currentnode.NodeType == HtmlNodeType.Document) ||
@@ -1836,8 +1836,8 @@ namespace HtmlAgilityPack
                         return true;
                     }
 
-                    if ((HtmlNode.IsClosedElement(_currentnode.Name)) ||
-                        (HtmlNode.IsEmptyElement(_currentnode.Name)))
+                    if ((HtmlNode.IsClosedElement(_currentnode.TagName)) ||
+                        (HtmlNode.IsEmptyElement(_currentnode.TagName)))
                     {
                         close = true;
                     }
@@ -1846,8 +1846,7 @@ namespace HtmlAgilityPack
 
             if ((close) || (!_currentnode._starttag))
             {
-                if ((OptionStopperNodeName != null) && (_remainder == null) &&
-                    (string.Compare(_currentnode.Name, OptionStopperNodeName, StringComparison.OrdinalIgnoreCase) == 0))
+                if ((OptionStopperNodeName != null) && (_remainder == null) && (_currentnode.TagName == OptionStopperNodeName))
                 {
                     _remainderOffset = index;
                     _remainder = Text.Substring(_remainderOffset);
@@ -1896,7 +1895,7 @@ namespace HtmlAgilityPack
             // when we append a child, we are in node end, so attributes are already populated
             if (node._namelength != 4) // quick check, avoids string alloc
                 return;
-            if (node.Name != "meta") // all nodes names are lowercase
+            if (node.TagName != "meta") // all nodes names are lowercase
                 return;
             HtmlAttribute att = node.Attributes["http-equiv"];
             if (att == null)

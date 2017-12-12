@@ -64,7 +64,7 @@ namespace HtmlAgilityPack
             get
             {
                 for (int i = 0; i < _items.Count; i++)
-                    if (_items[i].Name == nodeName)
+                    if (_items[i].TagName == nodeName)
                         return _items[i];
 
                 return null;
@@ -275,7 +275,7 @@ namespace HtmlAgilityPack
         {
             foreach (HtmlNode node in items)
             {
-                if (node.Name.ToLower().Contains(name))
+                if (node.TagName == name)
                     return node;
                 if (!node.HasChildNodes) continue;
                 HtmlNode returnNode = FindFirst(node.ChildNodes, name);

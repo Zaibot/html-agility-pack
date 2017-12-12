@@ -274,11 +274,11 @@ namespace HtmlAgilityPack
             {
                 if (_attindex != -1)
                 {
-                    InternalTrace("att>" + _currentnode.Attributes[_attindex].Name);
-                    return _nametable.GetOrAdd(_currentnode.Attributes[_attindex].Name);
+                    InternalTrace("att>" + _currentnode.Attributes[_attindex].TagName);
+                    return _nametable.GetOrAdd(_currentnode.Attributes[_attindex].TagName);
                 }
-                InternalTrace("node>" + _currentnode.Name);
-                return _nametable.GetOrAdd(_currentnode.Name);
+                InternalTrace("node>" + _currentnode.TagName);
+                return _nametable.GetOrAdd(_currentnode.TagName);
             }
         }
 
@@ -289,8 +289,8 @@ namespace HtmlAgilityPack
         {
             get
             {
-                InternalTrace(">" + _currentnode.Name);
-                return _nametable.GetOrAdd(_currentnode.Name);
+                InternalTrace(">" + _currentnode.TagName);
+                return _nametable.GetOrAdd(_currentnode.TagName);
             }
         }
 
@@ -499,7 +499,7 @@ namespace HtmlAgilityPack
                 return false;
             }
             InternalTrace("moveto oid=" + nav.GetHashCode()
-                          + ", n:" + nav._currentnode.Name
+                          + ", n:" + nav._currentnode.TagName
                           + ", a:" + nav._attindex);
 
             if (nav._doc == _doc)
@@ -736,7 +736,7 @@ namespace HtmlAgilityPack
 #else
             string name = "";
 #endif
-            string nodename = _currentnode == null ? "(null)" : _currentnode.Name.ToString();
+            string nodename = _currentnode == null ? "(null)" : _currentnode.TagName.ToString();
             string nodevalue;
             if (_currentnode == null)
             {

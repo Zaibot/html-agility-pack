@@ -69,7 +69,16 @@ namespace HtmlAgilityPack
         /// <summary>
         /// Gets the qualified name of the attribute.
         /// </summary>
-        public TagName Name
+        public string Name
+        {
+            get { return this.TagName; }
+            set { this.TagName = value; }
+        }
+
+        /// <summary>
+        /// Gets the qualified name of the attribute.
+        /// </summary>
+        public TagName TagName
         {
 			get
             {
@@ -209,7 +218,7 @@ namespace HtmlAgilityPack
             {
                 throw new ArgumentException("obj");
             }
-            return Name.CompareTo(att.Name);
+            return Name.CompareTo(att.TagName);
         }
 
         #endregion
@@ -223,7 +232,7 @@ namespace HtmlAgilityPack
         public HtmlAttribute Clone()
         {
             HtmlAttribute att = new HtmlAttribute(_ownerdocument);
-            att.Name = Name;
+            att.TagName = TagName;
             att.Value = Value;
             att.QuoteType = QuoteType;
             return att;
@@ -249,7 +258,7 @@ namespace HtmlAgilityPack
             int i = 1;
             foreach (HtmlAttribute node in OwnerNode.Attributes)
             {
-                if (node.Name != Name) continue;
+                if (node.TagName != TagName) continue;
 
                 if (node == this)
                     break;

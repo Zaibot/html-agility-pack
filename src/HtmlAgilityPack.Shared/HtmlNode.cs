@@ -407,7 +407,7 @@ namespace HtmlAgilityPack
 	        {
 	            string s = ((HtmlTextNode)this).Text;
 
-	            if (ParentNode.Name != "pre")
+	            if (ParentNode.TagName != "pre")
 	            {
 	                // Make some test...
 	                s = s.Replace("\n", "").Replace("\r", "").Replace("\t", "");
@@ -463,10 +463,19 @@ namespace HtmlAgilityPack
 			internal set { _lineposition = value; }
 		}
 
+        /// <summary>
+        /// Gets the qualified name of the attribute.
+        /// </summary>
+        public string Name
+        {
+            get { return this.TagName; }
+            set { this.TagName = value; }
+        }
+
 		/// <summary>
 		/// Gets or sets this node's name.
 		/// </summary>
-		public TagName Name
+		public TagName TagName
 		{
 			get
 			{
@@ -763,7 +772,7 @@ namespace HtmlAgilityPack
 		public IEnumerable<HtmlNode> Ancestors(string name)
 		{
 			for (HtmlNode n = ParentNode; n != null; n = n.ParentNode)
-				if (n.Name == name)
+				if (n.TagName == name)
 					yield return n;
 		}
 
@@ -785,7 +794,7 @@ namespace HtmlAgilityPack
 		public IEnumerable<HtmlNode> AncestorsAndSelf(string name)
 		{
 			for (HtmlNode n = this; n != null; n = n.ParentNode)
-				if (n.Name == name)
+				if (n.TagName == name)
 					yield return n;
 		}
 
@@ -865,7 +874,7 @@ namespace HtmlAgilityPack
 			}
 
 			HtmlNode node = CloneNode(deep);
-			node.Name = newName;
+			node.TagName = newName;
 			return node;
 		}
 
@@ -877,7 +886,7 @@ namespace HtmlAgilityPack
 		public HtmlNode CloneNode(bool deep)
 		{
 			HtmlNode node = _ownerdocument.CreateNode(_nodetype);
-			node.Name = Name;
+			node.TagName = Name;
 
 			switch (_nodetype)
 			{
@@ -1049,7 +1058,7 @@ namespace HtmlAgilityPack
 		public IEnumerable<HtmlNode> Descendants(string name)
 		{
 			foreach (HtmlNode node in Descendants())
-                if (node.Name == name)
+                if (node.TagName == name)
 					yield return node;
 		}
 
@@ -1079,7 +1088,7 @@ namespace HtmlAgilityPack
 			yield return this;
 
 			foreach (HtmlNode node in Descendants())
-				if (node.Name == name)
+				if (node.TagName == name)
 					yield return node;
 		}
 
@@ -1091,7 +1100,7 @@ namespace HtmlAgilityPack
 		public HtmlNode Element(string name)
 		{
 			foreach (HtmlNode node in ChildNodes)
-				if (node.Name == name)
+				if (node.TagName == name)
 					return node;
 			return null;
 		}
@@ -1104,7 +1113,7 @@ namespace HtmlAgilityPack
 		public IEnumerable<HtmlNode> Elements(string name)
 		{
 			foreach (HtmlNode node in ChildNodes)
-				if (node.Name == name)
+				if (node.TagName == name)
 					yield return node;
 		}
 
@@ -1608,10 +1617,10 @@ namespace HtmlAgilityPack
 
 				case HtmlNodeType.Element:
 					string name = _ownerdocument.OptionOutputOriginalCase
-						? Name.Original
+						? TagName.Original
 						: _ownerdocument.OptionOutputUpperCase
-							? Name.ToUpper()
-							: Name.ToString();
+							? TagName.ToUpper()
+							: TagName.ToString();
 
 					if (_ownerdocument.OptionOutputAsXml)
 					{
@@ -1636,7 +1645,7 @@ namespace HtmlAgilityPack
 					{
 						outText.Write(">");
 						bool cdata = false;
-						if (_ownerdocument.OptionOutputAsXml && IsCDataElement(Name))
+						if (_ownerdocument.OptionOutputAsXml && IsCDataElement(TagName))
 						{
 							// this code and the following tries to output things as nicely as possible for old browsers.
 							cdata = true;
@@ -1667,13 +1676,13 @@ namespace HtmlAgilityPack
 
 					else
 					{
-					    if (IsEmptyElement(Name))
+					    if (IsEmptyElement(TagName))
 					    {
 					        if ((_ownerdocument.OptionWriteEmptyNodes) || (_ownerdocument.OptionOutputAsXml))
 					            outText.Write(" />");
 					        else
 					        {
-					            if (Name.Length > 0 && Name.Original[0] == '?')
+					            if (TagName.Length > 0 && TagName.Original[0] == '?')
 					                outText.Write("?");
 
 					            outText.Write(">");
@@ -1730,10 +1739,10 @@ namespace HtmlAgilityPack
 
 				case HtmlNodeType.Element:
 					string name = _ownerdocument.OptionOutputOriginalCase
-						? Name.Original
+						? TagName.Original
 						: _ownerdocument.OptionOutputUpperCase
-							? Name.ToUpper()
-							: Name.ToString();
+							? TagName.ToUpper()
+							: TagName.ToString();
 
 					writer.WriteStartElement(name);
 					WriteAttributes(writer, this);
@@ -1836,10 +1845,10 @@ namespace HtmlAgilityPack
 				if (_ownerdocument.Openednodes != null)
 					_ownerdocument.Openednodes.Remove(_outerstartindex);
 
-				HtmlNode self = Utilities.GetDictionaryValueOrNull(_ownerdocument.Lastnodes, Name);
+				HtmlNode self = Utilities.GetDictionaryValueOrNull(_ownerdocument.Lastnodes, TagName);
 				if (self == this)
 				{
-					_ownerdocument.Lastnodes.Remove(Name);
+					_ownerdocument.Lastnodes.Remove(TagName);
 					_ownerdocument.UpdateLastParentNode();
 				}
 
@@ -1895,10 +1904,10 @@ namespace HtmlAgilityPack
 					: _ownerdocument.OptionOutputUpperCase
 						? att.XmlName.ToUpper()
 						: att.XmlName;
-				if (att.Name.Length >= 4)
+				if (att.TagName.Length >= 4)
 				{
-					if ((att.Name.Original[0] == '<') && (att.Name.Original[1] == '%') &&
-						(att.Name.Original[att.Name.Length - 1] == '>') && (att.Name.Original[att.Name.Length - 2] == '%'))
+					if ((att.TagName.Original[0] == '<') && (att.TagName.Original[1] == '%') &&
+						(att.TagName.Original[att.TagName.Length - 1] == '>') && (att.TagName.Original[att.TagName.Length - 2] == '%'))
 					{
 						outText.Write(" " + name);
 						return;
@@ -1945,7 +1954,7 @@ namespace HtmlAgilityPack
 				foreach (HtmlNode n in ChildNodes)
 				{
 					WriteAttribute(outText, _ownerdocument.CreateAttribute("_child_" + i,
-																		   n.Name));
+																		   n.TagName));
 					i++;
 				}
 			}
@@ -1971,21 +1980,21 @@ namespace HtmlAgilityPack
 		private string GetRelativeXpath()
 		{
 			if (ParentNode == null)
-				return Name;
+				return TagName;
 			if (NodeType == HtmlNodeType.Document)
 				return string.Empty;
 
 			int i = 1;
 			foreach (HtmlNode node in ParentNode.ChildNodes)
 			{
-				if (node.Name != Name) continue;
+				if (node.TagName != Name) continue;
 
 				if (node == this)
 					break;
 
 				i++;
 			}
-			return Name + "[" + i + "]";
+			return TagName + "[" + i + "]";
 		}
 
         private bool IsSingleElementNode()
@@ -2038,7 +2047,7 @@ namespace HtmlAgilityPack
 	                }
 	                else
 	                {
-	                    SetAttributeValue(att.Name, att.Value + " " + name);
+	                    SetAttributeValue(att.TagName, att.Value + " " + name);
 	                }
 	            }
 	        }
@@ -2123,7 +2132,7 @@ namespace HtmlAgilityPack
 	                    }
 
 	                    newClassNames = newClassNames.Trim();
-	                    SetAttributeValue(att.Name, newClassNames);
+	                    SetAttributeValue(att.TagName, newClassNames);
 	                }
 	                else
 	                {
@@ -2185,7 +2194,7 @@ namespace HtmlAgilityPack
                 if (att.Value.Equals(oldClass) || att.Value.Contains(oldClass))
                 {
                     string newClassNames = att.Value.Replace(oldClass, newClass);
-                    SetAttributeValue(att.Name, newClassNames);
+                    SetAttributeValue(att.TagName, newClassNames);
                 }
                 else if (throwError)
                 {

@@ -18,7 +18,7 @@ namespace HtmlAgilityPack
     {
         #region Fields
 
-        internal Dictionary<string, HtmlAttribute> Hashitems = new Dictionary<string, HtmlAttribute>(StringComparer.OrdinalIgnoreCase);
+        internal Dictionary<TagName, HtmlAttribute> Hashitems = new Dictionary<TagName, HtmlAttribute>();
         private HtmlNode _ownernode;
         private List<HtmlAttribute> items = new List<HtmlAttribute>();
 
@@ -158,7 +158,7 @@ namespace HtmlAgilityPack
                 throw new ArgumentNullException("item");
             }
 
-            Hashitems[item.Name] = item;
+            Hashitems[item.TagName] = item;
             item._ownernode = _ownernode;
             items.Insert(index, item);
 
@@ -182,7 +182,7 @@ namespace HtmlAgilityPack
         public void RemoveAt(int index)
         {
             HtmlAttribute att = items[index];
-            Hashitems.Remove(att.Name);
+            Hashitems.Remove(att.TagName);
             items.RemoveAt(index);
 
             _ownernode.SetChanged();
@@ -214,7 +214,7 @@ namespace HtmlAgilityPack
                 throw new ArgumentNullException("newAttribute");
             }
 
-            Hashitems[newAttribute.Name] = newAttribute;
+            Hashitems[newAttribute.TagName] = newAttribute;
             newAttribute._ownernode = _ownernode;
             items.Add(newAttribute);
 
@@ -254,7 +254,7 @@ namespace HtmlAgilityPack
         {
             for (int i = 0; i < items.Count; i++)
             {
-                if (items[i].Name == name)
+                if (items[i].TagName == name)
                     return true;
             }
             return false;
@@ -302,7 +302,7 @@ namespace HtmlAgilityPack
             
             for (int i = 0; i < items.Count; i++)
             {
-                if (items[i].Name == name)
+                if (items[i].TagName == name)
                 {
                     RemoveAt(i);
                 }
@@ -333,7 +333,7 @@ namespace HtmlAgilityPack
         {
             for (int i = 0; i < items.Count; i++)
             {
-                if (items[i].Name == attributeName)
+                if (items[i].TagName == attributeName)
                     yield return items[i];
             }
         }
@@ -381,7 +381,7 @@ namespace HtmlAgilityPack
             }
             for (int i = 0; i < items.Count; i++)
             {
-                if (items[i].Name == name)
+                if (items[i].TagName == name)
                     return i;
             }
             return -1;
