@@ -333,6 +333,9 @@ namespace HtmlAgilityPack
             return HtmlEncodeWithCompatibility(html, true);
         }
 
+        private static readonly Regex RegexNonHtmlEntitiesCompatibility = new Regex("&(?!(amp;)|(lt;)|(gt;)|(quot;))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex RegexNonHtmlEntities = new Regex("&(?!(amp;)|(lt;)|(gt;)|(quot;)|(nbsp;)|(reg;))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        
         internal static string HtmlEncodeWithCompatibility(string html, bool backwardCompatibility = true)
         {
             if (html == null)
@@ -344,11 +347,11 @@ namespace HtmlAgilityPack
 
             if (backwardCompatibility)
             {
-                return Regex.Replace(html, "&(?!(amp;)|(lt;)|(gt;)|(quot;))", "&amp;", RegexOptions.IgnoreCase | RegexOptions.Compiled).Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+                return RegexNonHtmlEntitiesCompatibility.Replace(html, "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
             }
             else
             {
-                return Regex.Replace(html, "&(?!(amp;)|(lt;)|(gt;)|(quot;)|(nbsp;)|(reg;))", "&amp;", RegexOptions.IgnoreCase | RegexOptions.Compiled).Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+                return RegexNonHtmlEntities.Replace(html, "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
             }          
         }
 

@@ -11,7 +11,7 @@ namespace HtmlAgilityPack
     using System;
 
     /// <summary>
-    ///     Represents a fragment of text in a mixed code document.
+    ///     Tag names are read as lower case, but compared case insensitive.
     /// </summary>
     public struct TagName : IEquatable<TagName>, IComparable<TagName>, IComparable
     {
@@ -86,6 +86,10 @@ namespace HtmlAgilityPack
 
         public TagName(string original)
         {
+            if (original == null)
+            {
+                throw new ArgumentNullException("original");
+            }
             Original = original;
         }
 
